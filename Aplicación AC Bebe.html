@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Primeros Alimentos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f7f5;
+            color: #2d3436;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: linear-gradient(135deg, #4a9e74, #357a57);
+            color: white;
+            padding: 20px 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header .subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+            margin-bottom: 14px;
+        }
+
+        .progress-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 7px;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .progress-pct {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .progress-bar-bg {
+            background: rgba(255,255,255,0.28);
+            border-radius: 10px;
+            height: 7px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: white;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.35s ease;
+            min-width: 0;
+        }
+
+        /* ── Filters ── */
+        .filters {
+            display: flex;
+            gap: 8px;
+            padding: 11px 16px;
+            background: white;
+            border-bottom: 1px solid #e6ece9;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 8px 4px;
+            border-radius: 20px;
+            border: 1.5px solid #c8ddd5;
+            background: white;
+            color: #4a9e74;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .filter-btn.active {
+            background: #4a9e74;
+            border-color: #4a9e74;
+            color: white;
+        }
+
+        /* ── Content ── */
+        .content {
+            padding: 12px 16px 80px;
+        }
+
+        /* ── Category ── */
+        .category-section {
+            margin-bottom: 18px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 7px;
+        }
+
+        .category-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2d3436;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        /* ── Food list ── */
+        .food-list {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 14px;
+            border-bottom: 1px solid #f0f4f2;
+            cursor: pointer;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .food-item:last-child {
+            border-bottom: none;
+        }
+
+        .food-item:active {
+            background: #f0f9f5;
+        }
+
+        /* Circle checkbox */
+        .food-check {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid #cad9d3;
+            margin-right: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .food-item.probado .food-check {
+            background: #4a9e74;
+            border-color: #4a9e74;
+        }
+
+        .check-icon {
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            display: none;
+            line-height: 1;
+        }
+
+        .food-item.probado .check-icon {
+            display: block;
+        }
+
+        /* Food name */
+        .food-name {
+            font-size: 15px;
+            color: #2d3436;
+            flex: 1;
+            transition: color 0.2s;
+        }
+
+        .food-item.probado .food-name {
+            color: #95b8a8;
+        }
+
+        /* Badge */
+        .food-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 10px;
+            background: #e6f4ec;
+            color: #4a9e74;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .food-item.probado .food-badge {
+            opacity: 1;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #b2bec3;
+        }
+
+        .empty-icon {
+            font-size: 52px;
+            margin-bottom: 12px;
+        }
+
+        .empty-text {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🌿 Primeros Alimentos</h1>
+    <p class="subtitle">Alimentación complementaria</p>
+    <div class="progress-row">
+        <span class="progress-label" id="progress-label">0 de 0 alimentos probados</span>
+        <span class="progress-pct" id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+</div>
+
+<div class="filters">
+    <button class="filter-btn active" data-filter="todos">Todos</button>
+    <button class="filter-btn"        data-filter="pendientes">Pendientes</button>
+    <button class="filter-btn"        data-filter="probados">Probados</button>
+</div>
+
+<div class="content" id="content"></div>
+
+<script>
+    const CATEGORIES = [
+        {
+            name: "Verduras",
+            emoji: "🥦",
+            items: [
+                "Calabacita", "Zanahoria", "Brócoli", "Ejote", "Jitomate",
+                "Pepino", "Pimiento", "Chayote", "Chícharo", "Nopal",
+                "Coliflor", "Apio", "Jícama", "Champiñón", "Cebolla",
+                "Espárrago", "Berenjena", "Betabel", "Espinaca", "Kale", "Col"
+            ]
+        },
+        {
+            name: "Frutas",
+            emoji: "🍎",
+            items: [
+                "Pera", "Plátano", "Manzana", "Sandía", "Piña",
+                "Naranja", "Mango", "Papaya", "Fresa", "Guayaba",
+                "Melón", "Mandarina", "Durazno", "Ciruela", "Higo",
+                "Kiwi", "Toronja", "Uvas", "Zarzamora", "Mora azul",
+                "Frambuesa", "Arándano", "Chabacano", "Cereza", "Mamey", "Guanábana"
+            ]
+        },
+        {
+            name: "Cereales",
+            emoji: "🌾",
+            items: [
+                "CIF Avena (Nestum)", "CIF Arroz", "Amaranto", "Elote",
+                "CIF 4 Cereales", "Papa", "Camote", "Tortilla de maíz",
+                "Quinoa", "Arroz", "Avena", "Pasta de trigo", "Tapioca", "Yuca"
+            ]
+        },
+        {
+            name: "Proteínas vegetales",
+            emoji: "🫘",
+            items: [
+                "Frijol", "Lenteja", "Garbanzo", "Haba", "Alubia", "Edamame"
+            ]
+        },
+        {
+            name: "Proteínas animales",
+            emoji: "🍗",
+            items: [
+                "Pollo", "Pavo", "Carne magra de res", "Huevo", "Hígado de pollo",
+                "Carne magra de cerdo", "Pescado blanco", "Salmón",
+                "Atún", "Camarón", "Yogurt natural", "Kefir", "Queso blanco"
+            ]
+        },
+        {
+            name: "Grasas",
+            emoji: "🥑",
+            items: [
+                "Aceite de oliva extra virgen", "Aceite de aguacate", "Aguacate",
+                "Ajonjolí", "Almendra molida", "Cacahuate molido",
+                "Nuez molida", "Chía", "Coco rallado", "Linaza molida",
+                "Pistache molido", "Semilla de calabaza molida", "Semilla de girasol molida"
+            ]
+        }
+    ];
+
+    const STORAGE_KEY = 'primeros-alimentos-v1';
+    let currentFilter = 'todos';
+    let state = {};
+
+    // ── State ──────────────────────────────────────────────────
+    function initState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            state = JSON.parse(saved);
+        }
+        CATEGORIES.forEach(cat =>
+            cat.items.forEach(item => {
+                if (!(item in state)) state[item] = false;
+            })
+        );
+    }
+
+    function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function toggleFood(name) {
+        state[name] = !state[name];
+        saveState();
+        render();
+    }
+
+    // ── Progress ───────────────────────────────────────────────
+    function updateProgress() {
+        const total = Object.keys(state).length;
+        const done  = Object.values(state).filter(Boolean).length;
+        const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        document.getElementById('progress-label').textContent =
+            `${done} de ${total} alimentos probados`;
+        document.getElementById('progress-pct').textContent = `${pct}%`;
+        document.getElementById('progress-bar').style.width  = `${pct}%`;
+    }
+
+    // ── Render ─────────────────────────────────────────────────
+    function render() {
+        updateProgress();
+
+        let html = '';
+        let totalVisible = 0;
+
+        CATEGORIES.forEach(cat => {
+            const visible = cat.items.filter(item => {
+                if (currentFilter === 'probados')   return  state[item];
+                if (currentFilter === 'pendientes') return !state[item];
+                return true;
+            });
+
+            if (visible.length === 0) return;
+            totalVisible += visible.length;
+
+            const done = cat.items.filter(i => state[i]).length;
+
+            html += `
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title">${cat.emoji} ${cat.name}</span>
+                        <span class="category-count">${done}/${cat.items.length}</span>
+                    </div>
+                    <div class="food-list">
+            `;
+
+            visible.forEach(item => {
+                const done = state[item];
+                html += `
+                    <div class="food-item ${done ? 'probado' : ''}" data-food="${item}">
+                        <div class="food-check">
+                            <span class="check-icon">✓</span>
+                        </div>
+                        <span class="food-name">${item}</span>
+                        <span class="food-badge">Probado ✓</span>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+        });
+
+        if (totalVisible === 0) {
+            const isProbados = currentFilter === 'probados';
+            html = `
+                <div class="empty-state">
+                    <div class="empty-icon">${isProbados ? '🌱' : '🎉'}</div>
+                    <p class="empty-text">
+                        ${isProbados
+                            ? 'Aún no has marcado\nningún alimento como probado.'
+                            : '¡Ya lo probó todo!\nExcelente trabajo. 🎊'}
+                    </p>
+                </div>
+            `;
+        }
+
+        document.getElementById('content').innerHTML = html;
+    }
+
+    // ── Filters ────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            render();
+        });
+    });
+
+    // ── Food click (event delegation) ──────────────────────────
+    document.getElementById('content').addEventListener('click', e => {
+        const foodEl = e.target.closest('.food-item');
+        if (foodEl) toggleFood(foodEl.dataset.food);
+    });
+
+    // ── Init ───────────────────────────────────────────────────
+    initState();
+    render();
+</script>
+</body>
+</html>
